@@ -21,6 +21,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerPlayerConnection;
@@ -110,10 +111,21 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         if (!this.level.isClientSide && this.isHirschgeistSummon() && this.getTarget() != null) {
             double distance = this.distanceTo(this.getTarget());
             if (this.attackCooldown <= 0) {
-                if (distance < 10D) {
-                    WWNetwork.HANDLER.sendToPlayers(((ServerChunkCache)this.level.getChunkSource()).chunkMap.entityMap.get(this.getId()).seenBy.stream().map(ServerPlayerConnection::getPlayer).collect(Collectors.toSet()), new WispAttackPacket(this.position().add(0F, this.getBbHeight(), 0F), this.getWispColor().getColor()));
+                distanceCondition: if (distance < 10D) {
+                    ChunkMap.TrackedEntity trackedEntity = ((ServerChunkCache) this.level.getChunkSource())
+                        .chunkMap
+                        .entityMap.get(this.getId());
+                    
                     this.getTarget().hurt(DamageSource.MAGIC, 1F);
                     this.attackCooldown = 40 + this.getRandom().nextInt(6);
+                    
+                    if (trackedEntity == null) break distanceCondition;
+                    
+                    WWNetwork.HANDLER.sendToPlayers(trackedEntity
+                        .seenBy
+                        .stream()
+                        .map(ServerPlayerConnection::getPlayer)
+                        .collect(Collectors.toSet()), new WispAttackPacket(this.position().add(0F, this.getBbHeight(), 0F), this.getWispColor().getColor()));
                 }
             } else {
                 this.attackCooldown--;
