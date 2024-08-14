@@ -48,7 +48,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
-
+    
     public final DamageSource WISP = new EntityDamageSource("wisp", this).bypassMagic().bypassArmor();
     public boolean isHostile = false;
     public long lastSpawn = 0;
@@ -64,11 +64,11 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
     private boolean shouldBeHostile = false;
     private int attackCooldown = 0;
     private boolean isHirschgeistSummon = false;
-
+    
     public EntityWisp(EntityType<? extends EntityWisp> entityType, Level world) {
         super(entityType, world);
     }
-
+    
     public WispColor getWispColor() {
         int c = this.entityData.get(COLOR_VARIANT);
         if (c <= WispColors.values().length && c > 0) {
@@ -76,7 +76,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         }
         return WispColors.BLUE;
     }
-
+    
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -86,7 +86,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         this.entityData.define(PASSIVE_SCALE, 1F);
         this.entityData.define(COLOR_VARIANT, 0);
     }
-
+    
     public void tick() {
         super.tick();
         if (this.isHostile && level.getDifficulty() == Difficulty.PEACEFUL) {
@@ -105,7 +105,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
             this.noPhysics = true;
             this.entityData.set(ATTACK_STATE, state + 1);
         }
-        if(this.getTarget() != null && !HOSTILE_TARGET_PREDICATE.test(this, this.getTarget())) {
+        if (this.getTarget() != null && !HOSTILE_TARGET_PREDICATE.test(this, this.getTarget())) {
             this.setTarget(null);
         }
         if (!this.level.isClientSide && this.isHirschgeistSummon() && this.getTarget() != null) {
@@ -117,11 +117,11 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
                         .chunkMap
                         .entityMap.get(this.getId());
                     
-                    this.getTarget().hurt(DamageSource.MAGIC, 1F);
-                    this.attackCooldown = 40 + this.getRandom().nextInt(6);
                     
                     if (trackedEntity == null) break distance;
                     
+                    this.getTarget().hurt(DamageSource.MAGIC, 1F);
+                    this.attackCooldown = 40 + this.getRandom().nextInt(6);
                     WWNetwork.HANDLER.sendToPlayers(trackedEntity
                         .seenBy
                         .stream()
@@ -163,26 +163,26 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
             }
         }
     }
-
+    
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
         return super.isInvulnerableTo(source) || source.getEntity() == this || source == DamageSource.MAGIC || source == DamageSource.IN_FIRE || source == DamageSource.ON_FIRE || source.getEntity() instanceof EntityHirschgeist;
     }
-
+    
     public boolean isPassive() {
         return !this.isHostile && !this.isHirschgeistSummon();
     }
-
+    
     public boolean isHirschgeistSummon() {
         return this.isHirschgeistSummon;
     }
-
+    
     public void setHirschgeistSummon(boolean value) {
         this.isHirschgeistSummon = value;
         this.isHostile = false;
         this.shouldBeHostile = false;
     }
-
+    
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
@@ -197,7 +197,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
                 this.targetPosition = this.getTarget().blockPosition();
             } else {
                 this.targetPosition = new BlockPos(this.getX() + (double) this.random.nextInt(5) - (double) this.random.nextInt(5), this.getY() + (double) this.random.nextInt(4) - 0.1D, this.getZ() + (double) this.random.nextInt(5) - (double) this.random.nextInt(5));
-
+                
             }
             if (this.hasSoul() && this.isHostile) {
                 this.targetPosition = new BlockPos(this.getX() + (double) this.random.nextInt(60) - (double) this.random.nextInt(60), this.getY() + (double) this.random.nextInt(4), this.getZ() + (double) this.random.nextInt(60) - (double) this.random.nextInt(60));
@@ -216,18 +216,18 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
             this.setYRot(this.getYRot() + f1);
         }
     }
-
+    
     public boolean hasSoul() {
         return this.entityData.get(ATTACK_STATE) > 0;
     }
-
+    
     protected void resetAttackState() {
         this.entityData.set(ATTACK_STATE, 0);
         this.entityData.set(TARGET_ID, "");
         this.entityData.set(TARGET_NAME, "");
         targetTexture = null;
     }
-
+    
     @Environment(EnvType.CLIENT)
     public ResourceLocation getTargetTexture() {
         if (targetTexture == null) {
@@ -251,35 +251,35 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         }
         return targetTexture;
     }
-
+    
     @Override
     public boolean causeFallDamage(float distance, float damageMultiplier, DamageSource source) {
         return false;
     }
-
+    
     @Override
     protected void checkFallDamage(double y, boolean onGroundIn, BlockState state, BlockPos pos) {
     }
-
+    
     @Override
     public boolean onClimbable() {
         return false;
     }
-
+    
     @Override
     public boolean isIgnoringBlockTriggers() {
         return true;
     }
-
+    
     @Override
     public boolean isPushable() {
         return false;
     }
-
+    
     @Override
     protected void playStepSound(BlockPos pos, BlockState blockIn) {
     }
-
+    
     @Override
     protected void doPush(Entity entity) {
         if (entity == this.getTarget() && this.getTarget() != null && entity instanceof Player && HOSTILE_TARGET_PREDICATE.test(this, (Player) entity) && !this.hasSoul() && !this.isHirschgeistSummon()) {
@@ -289,17 +289,17 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
             this.entityData.set(TARGET_NAME, player.getGameProfile().getName());
         }
     }
-
+    
     public boolean canBeLeashed(Player player) {
         return false;
     }
-
+    
     @Override
     public boolean removeWhenFarAway(double range) {
         // always has a custom name, so override default behavior instead of super call
         return this.getContainer().despawns() && !this.hasSoul();
     }
-
+    
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
@@ -308,7 +308,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         compound.putBoolean("should_be_hostile", this.shouldBeHostile);
         compound.putBoolean("hirschgeist_summon", this.isHirschgeistSummon());
     }
-
+    
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
@@ -317,7 +317,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         this.shouldBeHostile = compound.getBoolean("should_be_hostile");
         this.setHirschgeistSummon(compound.getBoolean("hirschgeist_summon"));
     }
-
+    
     @Override
     public void die(DamageSource cause) {
         super.die(cause);
@@ -328,7 +328,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
             }
         }
     }
-
+    
     private static Item getItemForVariant(int variant) {
         if (variant <= WispColors.values().length && variant > 0) {
             Block block = WispColors.values()[variant - 1].getGhostLight().get();
@@ -336,49 +336,49 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         }
         return null;
     }
-
+    
     public boolean getNewHostileChance() {
         return getContainer().getCustomConfiguration().getDouble("hostile_chance") / 100D > Math.random();
     }
-
+    
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, SpawnGroupData livingdata, CompoundTag compound) {
         boolean hostile = this.getNewHostileChance();
         int colorVariant = this.getRandom().nextInt(WispColors.values().length) + 1;
-
+        
         if (livingdata instanceof WispData) {
             hostile = ((WispData) livingdata).isHostile;
             colorVariant = ((WispData) livingdata).colorVariant;
         } else {
             livingdata = new WispData(hostile, colorVariant);
         }
-
+        
         this.isHostile = hostile;
         this.entityData.set(COLOR_VARIANT, colorVariant);
         return livingdata;
     }
-
+    
     public static class WispData extends AgeableMobGroupData {
         public boolean isHostile;
         public int colorVariant;
-
+        
         public WispData(boolean isHostile, int colorVariant) {
             super(false);
             this.isHostile = isHostile;
             this.colorVariant = colorVariant;
         }
     }
-
+    
     @Override
     public AgeableMob getBreedOffspring(ServerLevel world, AgeableMob ageable) {
         return null;
     }
-
+    
     @Override
     public EntityWisp getImplementation() {
         return this;
     }
-
+    
     @Override
     public EntityTypeContainer<EntityWisp> getContainer() {
         return ModEntities.WISP;
