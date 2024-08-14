@@ -111,7 +111,8 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
         if (!this.level.isClientSide && this.isHirschgeistSummon() && this.getTarget() != null) {
             double distance = this.distanceTo(this.getTarget());
             if (this.attackCooldown <= 0) {
-                distanceCondition: if (distance < 10D) {
+                distance:
+                if (distance < 10D) {
                     ChunkMap.TrackedEntity trackedEntity = ((ServerChunkCache) this.level.getChunkSource())
                         .chunkMap
                         .entityMap.get(this.getId());
@@ -119,7 +120,7 @@ public class EntityWisp extends Animal implements IContainerEntity<EntityWisp> {
                     this.getTarget().hurt(DamageSource.MAGIC, 1F);
                     this.attackCooldown = 40 + this.getRandom().nextInt(6);
                     
-                    if (trackedEntity == null) break distanceCondition;
+                    if (trackedEntity == null) break distance;
                     
                     WWNetwork.HANDLER.sendToPlayers(trackedEntity
                         .seenBy
